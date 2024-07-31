@@ -11,9 +11,8 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Typography from '@mui/material/Typography';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
+import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 
 const drawerWidth = 300;
 
@@ -34,8 +33,7 @@ const MiniDrawer = () => {
     const icons = [
       <HomeOutlinedIcon />,
       <CalendarMonthOutlinedIcon />,
-      <ShoppingCartIcon />,
-      <InventoryIcon />,
+      <AddCircleOutlineOutlinedIcon />,
     ];
     return icons[index % icons.length];
   };
@@ -79,7 +77,7 @@ const MiniDrawer = () => {
       >
         {isSidebarOpen && (
           <List style={{ marginTop: '20px' }}>
-            {['Home', 'Calendar', 'Add Task', 'Inventory'].map((text, index) => (
+            {['Home', 'Calendar', 'Add Task'].map((text, index) => (
               <Link to={`/${text.toLowerCase().replace(' ', '-')}`} style={{ textDecoration: 'none', color: 'inherit' }} key={text}>
                 <ListItemButton
                   sx={{

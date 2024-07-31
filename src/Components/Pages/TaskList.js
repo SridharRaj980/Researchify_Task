@@ -6,12 +6,24 @@ import { useNavigate } from 'react-router-dom';
 import { useSpring, animated } from 'react-spring';
 import TaskCard from './TaskCard';
 import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
   const [displayedTaskIndex, setDisplayedTaskIndex] = useState(0);
   const [activeState, setActiveState] = useState('myTasks');
   const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const targetRef = useRef(null);
 
@@ -20,8 +32,10 @@ const TaskList = () => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserName(user.displayName || 'User'); // Set to 'User' if displayName is not available
+        setUserEmail(user.email || 'No email available');
       } else {
         setUserName('User');
+        setUserEmail('No email available');
       }
     });
   }, []);
@@ -102,10 +116,74 @@ const TaskList = () => {
     loop: true,
   });
 
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+
+  const handleSignOut = () => {
+    const auth = getAuth();
+    auth.signOut().then(() => {
+      navigate('/welcome'); // Redirect to login page or wherever appropriate
+    }).catch((error) => {
+      console.error('Sign Out Error', error);
+    });
+    handleClose();
+  };
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+    handleClose();
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
   return (
-    <div style={containerStyle} sx={{ backgroundColor: '#F2F5FF' }}>
+    <div style={containerStyle}>
       <h1 style={headingStyle}>Hello {userName}!</h1>
       <p style={subheadingStyle}>Have a nice day.</p>
+
+      <div style={accountIconContainerStyle}>
+        <AccountCircle
+          style={accountIconStyle}
+          onClick={handleClick}
+        />
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          PaperProps={{
+            style: {
+              maxHeight: 48 * 4.5,
+              width: '20ch',
+            },
+          }}
+        >
+          <MenuItem onClick={handleOpenModal}>
+            <AccountCircle style={menuIconStyle} />
+            Account Info
+          </MenuItem>
+          <MenuItem onClick={handleSignOut}>
+            <ExitToAppOutlinedIcon style={menuIconStyle} />
+            Sign Out
+          </MenuItem>
+        </Menu>
+      </div>
+
+      <Dialog open={openModal} onClose={handleCloseModal}>
+        <DialogTitle>Account Information</DialogTitle>
+        <DialogContent>
+          <p><strong>Name:</strong> {userName}</p>
+          <p><strong>Email:</strong> {userEmail}</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <div style={tabsContainerStyle}>
         <button style={activeState === 'myTasks' ? activeTabStyle : tabStyle} onClick={() => setActiveState('myTasks')}>My Tasks</button>
         <button style={activeState === 'inProgress' ? activeTabStyle : tabStyle} onClick={() => setActiveState('inProgress')}>In-progress</button>
@@ -143,6 +221,7 @@ const containerStyle = {
   padding: '20px',
   textAlign: 'center',
   backgroundColor: '#F2F5FF',
+  position: 'relative', // Ensure the account icon is positioned relative to this container
 };
 
 const headingStyle = {
@@ -197,17 +276,6 @@ const progressTasksContainerStyle = {
   justifyContent: 'left',
 };
 
-const addTaskButtonStyle = {
-  backgroundColor: '#6c63ff',
-  color: '#fff',
-  border: 'none',
-  padding: '10px 20px',
-  borderRadius: '25px',
-  fontSize: '16px',
-  cursor: 'pointer',
-  marginTop: '20px',
-};
-
 const taskStyle = {
   background: 'linear-gradient(177.23deg, #9C2CF3 -13.49%, #3A49F9 109.75%)',
   border: '1px solid #ccc',
@@ -250,6 +318,23 @@ const iconStyle = {
   color: '#fff',
   fontSize:'45px',
   verticalAlign: 'middle',
+  marginRight: '10px',
+};
+
+const accountIconContainerStyle = {
+  position: 'absolute',
+  top: 16,
+  right: 16,
+  zIndex: 1300, // Ensure it is above other content
+};
+
+const accountIconStyle = {
+  fontSize: 40,
+  cursor: 'pointer',
+};
+
+const menuIconStyle = {
+  fontSize: 24,
   marginRight: '10px',
 };
 

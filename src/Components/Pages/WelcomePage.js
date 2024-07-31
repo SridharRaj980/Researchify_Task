@@ -5,24 +5,28 @@ import theme from '../../Theme';
 import { auth, googleProvider } from '../../firebase';
 import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { FaGoogle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const WelcomePage = () => {
+  const navigate = useNavigate();
+
   const handleSignIn = async () => {
     try {
       await signInWithRedirect(auth, googleProvider);
     } catch (error) {
-      console.error(error);
+      console.error('Error during sign-in: ', error);
     }
   };
 
   const handleRedirect = async () => {
     try {
       const result = await getRedirectResult(auth);
-      if (result) {
-        console.log(result.user); // User info
+      if (result && result.user) {
+        console.log('User Info:', result.user); // User info
+        navigate('/dashboard'); // Redirect to your dashboard or main page
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error during redirect result: ', error);
     }
   };
 
